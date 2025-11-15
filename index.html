@@ -34,11 +34,30 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
         }
 
         .header h1 {
             font-size: 24px;
             font-weight: 600;
+            margin: 0;
+        }
+
+        .user-badge {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
         .status-indicator {
@@ -433,17 +452,59 @@
         </div>
     </div>
 
+    <!-- Name Modal -->
+    <div id="nameModal" style="display: flex; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 40px; border-radius: 16px; max-width: 400px; width: 90%; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <h2 style="margin: 0 0 10px 0; color: #667eea;">🌶️ Selamat Datang!</h2>
+            <p style="margin: 0 0 20px 0; color: #666;">Silakan masukkan nama Anda untuk melanjutkan</p>
+            <input 
+                type="text" 
+                id="userName" 
+                placeholder="Nama Anda..."
+                style="width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 20px; box-sizing: border-box;"
+                onkeypress="if(event.key==='Enter') submitName()"
+            >
+            <button 
+                onclick="submitName()"
+                style="width: 100%; padding: 14px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 16px;"
+            >
+                Mulai Chat
+            </button>
+        </div>
+    </div>
+
     <script>
-        const BACKEND_URL = 'https://pepper-rag-backend-survei-production.up.railway.app'; // GANTI DENGAN URL RAILWAY ANDA
+        const BACKEND_URL = 'https://your-backend-url.railway.app'; // GANTI DENGAN URL RAILWAY ANDA
         
         let currentQueryId = null;
         let awaitingRating = false;
+        let userName = null;
         let ratings = {
             accuracy: null,
             kelengkapan: null,
             kejelasan: null,
             relevansi: null
         };
+
+        // Submit name and start chat
+        function submitName() {
+            const nameInput = document.getElementById('userName');
+            const name = nameInput.value.trim();
+            
+            if (!name) {
+                alert('Mohon masukkan nama Anda!');
+                return;
+            }
+            
+            userName = name;
+            document.getElementById('nameModal').style.display = 'none';
+            
+            // Add welcome message
+            addMessage('assistant', `Halo ${userName}! 👋 Saya siap membantu Anda dengan pertanyaan seputar cabai dan paprika. Silakan tanya apa saja!`);
+            
+            // Check backend status
+            checkBackendStatus();
+        }
 
         // Check backend status on page load
         async function checkBackendStatus() {
@@ -481,8 +542,8 @@
         // Check status every 30 seconds
         setInterval(checkBackendStatus, 30000);
 
-        // Initial check
-        checkBackendStatus();
+        // Don't check on initial load - wait for name first
+        // checkBackendStatus() will be called after name is submitted
 
         function addMessage(type, content, images = []) {
             const chatContainer = document.getElementById('chatContainer');

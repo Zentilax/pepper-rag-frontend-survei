@@ -594,7 +594,10 @@
                 const response = await fetch(`${BACKEND_URL}/api/chat`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ question })
+                    body: JSON.stringify({ 
+                        question,
+                        user_name: userName 
+                    })
                 });
 
                 const reader = response.body.getReader();
